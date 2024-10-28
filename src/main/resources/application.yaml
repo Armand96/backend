@@ -6,10 +6,24 @@ spring:
       max-request-size: 10MB
   application:
     name: backend
+# ==================== postgresql
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/gaboot
+#    username: postgres
+#    password: postgres
+#    driver-class-name: org.postgresql.Driver
+# ===================== mysql
   datasource:
-    url: jdbc:postgresql://localhost:5432/gaboot
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:mysql://localhost:3306/gabz
+    username: root
+    password: wingscorp
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
 file:
   upload-dir: storage/

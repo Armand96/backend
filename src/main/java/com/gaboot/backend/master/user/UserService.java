@@ -1,8 +1,11 @@
 package com.gaboot.backend.master.user;
 
 import com.gaboot.backend.common.dto.ResponseDto;
+import com.gaboot.backend.common.exception.ResourceNotFoundException;
 import com.gaboot.backend.common.service.ImageService;
 import com.gaboot.backend.common.service.MappingService;
+import com.gaboot.backend.master.role.RoleRepo;
+import com.gaboot.backend.master.role.entity.Role;
 import com.gaboot.backend.master.user.dto.CreateUserDto;
 import com.gaboot.backend.master.user.dto.UpdateUserDto;
 import com.gaboot.backend.master.user.dto.UserMapper;
@@ -22,6 +25,7 @@ import java.util.UUID;
 public class UserService implements UserServiceInterface {
 
     private UserRepo userRepo;
+    private RoleRepo roleRepo;
     private MappingService<User> mapServ;
     private final BCryptPasswordEncoder passwordEncoder;
     private ImageService imgService;
@@ -36,7 +40,9 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public ResponseDto<User> findOne(UUID id) {
-        final User user = userRepo.findById(id).orElse(null);
+        final User user = userRepo.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Resource not found with given id: " + id)
+        );
         final ResponseDto<User> respDto = new ResponseDto<>();
         mapServ.mapResponseSuccess(respDto, user, "");
         return respDto;
@@ -44,6 +50,9 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public ResponseDto<User> create(CreateUserDto userDto, MultipartFile file) {
+        Role role = roleRepo.findById(userDto.getRoleId()).orElseThrow(
+                () -> new ResourceNotFoundException("Role id not found with given id :" + userDto.getRoleId())
+        );
 
         // upload image
         final String filename = userDto.getFirstname().toLowerCase().trim() + "_" + userDto.getLastname().toLowerCase().trim() + "_" + Instant.now().toEpochMilli();
@@ -52,6 +61,8 @@ public class UserService implements UserServiceInterface {
 
         User user = UserMapper.mapToUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(role);
+        System.out.println("user after assign: "+user.toString());
 
         if(!imagePath.isEmpty()) {
             user.setImagePath(imagePath);
@@ -66,17 +77,21 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public ResponseDto<User> update(UpdateUserDto userDto, MultipartFile file, UUID id) {
-        User user = userRepo.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("User not found")
+        Role role = roleRepo.findById(userDto.getRoleId()).orElseThrow(
+                () -> new ResourceNotFoundException("Role id not found with given id :" + userDto.getRoleId())
         );
-        System.out.println(user.toString());
+        User user = userRepo.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Resource not found with given id: " + id)
+        );
+        // System.out.println(user.toString());
 
         if(userDto.getPassword() != null) userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         else userDto.setPassword(user.getPassword());
 
         UserMapper.mapToUser(user, userDto);
+        user.setRole(role);
 
-        System.out.println(user.toString());
+        // System.out.println(user.toString());
         // upload image
         final String filename = userDto.getFirstname().toLowerCase().trim() + "_" + userDto.getLastname().toLowerCase().trim() + "_" + Instant.now().toEpochMilli();
         final String imagePath = imgService.uploadImage(file, filename);

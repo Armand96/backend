@@ -22,7 +22,7 @@ public class ImageService {
         // Create the upload directory if it doesn't exist
         File uploadDir = new File(Storage.USER_DIR);
         if (!uploadDir.exists()) {
-            uploadDir.mkdir();
+            uploadDir.mkdirs();
         }
 
         // Define the path to save the file
@@ -44,7 +44,7 @@ public class ImageService {
         // Create the upload directory if it doesn't exist
         File uploadDir = new File(Storage.USER_DIR_THUMB);
         if (!uploadDir.exists()) {
-            uploadDir.mkdir();
+            uploadDir.mkdirs();
         }
 
         // Define the path to save the file

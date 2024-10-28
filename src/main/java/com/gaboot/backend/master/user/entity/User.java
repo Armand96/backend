@@ -1,10 +1,11 @@
 package com.gaboot.backend.master.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gaboot.backend.common.entity.BaseEntity;
+import com.gaboot.backend.master.role.entity.Role;
 import jakarta.persistence.*;
 import lombok.*;
-//import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
 
@@ -45,6 +46,8 @@ public class User extends BaseEntity {
     @Column(length = 255)
     private String thumbnailPath;
 
-    private UUID roleId;
-
+    @ManyToOne(fetch = FetchType.LAZY) // Establishes the relationship
+    @JoinColumn(name = "role_id", referencedColumnName = "id") // Foreign key column
+    @JsonBackReference
+    private Role role;
 }
