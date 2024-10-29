@@ -1,6 +1,6 @@
 package com.gaboot.backend.master.role.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gaboot.backend.common.entity.BaseEntity;
 import com.gaboot.backend.master.user.entity.User;
 import jakarta.persistence.*;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @Table(name = "master_roles")
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "users")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Role extends BaseEntity {
@@ -26,6 +26,6 @@ public class Role extends BaseEntity {
     private String roleName;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY) // Establishes the reverse relationship
-    @JsonManagedReference
+    @JsonIgnoreProperties("role")
     private List<User> users; // Collection of users with this role
 }

@@ -1,7 +1,7 @@
 package com.gaboot.backend.master.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gaboot.backend.common.entity.BaseEntity;
 import com.gaboot.backend.master.role.entity.Role;
 import jakarta.persistence.*;
@@ -11,7 +11,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "master_users")
-@Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor
+@Getter @Setter
+@ToString(exclude = "role")
+@AllArgsConstructor @NoArgsConstructor
 public class User extends BaseEntity {
 
     @Id
@@ -48,6 +50,6 @@ public class User extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY) // Establishes the relationship
     @JoinColumn(name = "role_id", referencedColumnName = "id") // Foreign key column
-    @JsonBackReference
+    @JsonIgnoreProperties("users")
     private Role role;
 }

@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ResponseDto<Object>> handleGeneralException(Exception ex) {
+        ex.printStackTrace();
         ResponseDto<Object> resp = new ResponseDto<>();
         resp.setMessage(ex.getMessage());
         resp.setSuccess(false);

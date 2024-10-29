@@ -43,6 +43,7 @@ public class UserService implements UserServiceInterface {
         final User user = userRepo.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Resource not found with given id: " + id)
         );
+        user.getRole().getRoleName();
         final ResponseDto<User> respDto = new ResponseDto<>();
         mapServ.mapResponseSuccess(respDto, user, "");
         return respDto;
