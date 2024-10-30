@@ -2,6 +2,7 @@ package com.gaboot.backend.master.role;
 
 import com.gaboot.backend.common.dto.ResponseDto;
 import com.gaboot.backend.master.role.dto.CreateRoleDto;
+import com.gaboot.backend.master.role.dto.FilterRoleDto;
 import com.gaboot.backend.master.role.dto.UpdateRoleDto;
 import com.gaboot.backend.master.role.entity.Role;
 
@@ -22,8 +23,8 @@ public class RoleController {
     private RoleServiceInterface roleSvc;
 
     @GetMapping()
-    public ResponseEntity<ResponseDto<Role>> findAll() {
-        return ResponseEntity.ok(roleSvc.findAll());
+    public ResponseEntity<ResponseDto<Role>> findAll(@ModelAttribute FilterRoleDto pageReq) {
+        return ResponseEntity.ok(roleSvc.findAll(pageReq));
     }
 
     @GetMapping("/{id}")

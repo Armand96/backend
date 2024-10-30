@@ -3,15 +3,15 @@ package com.gaboot.backend.master.role;
 import com.gaboot.backend.common.dto.ResponseDto;
 import com.gaboot.backend.common.exception.ResourceNotFoundException;
 import com.gaboot.backend.common.service.MappingService;
-import com.gaboot.backend.master.role.dto.CreateRoleDto;
-import com.gaboot.backend.master.role.dto.RoleMapper;
-import com.gaboot.backend.master.role.dto.UpdateRoleDto;
+import com.gaboot.backend.master.role.dto.*;
 import com.gaboot.backend.master.role.entity.Role;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,13 +22,16 @@ public class RoleService implements RoleServiceInterface {
     private MappingService<Role> mapSvc;
 
     @Override
-    @Transactional
-    public ResponseDto<Role> findAll() {
-        final List<Role> roles = roleRepo.findAll();
-        System.out.println("Service: "+roles.toString());
-        // System.out.println("Service: "+roles.getFirst().getUsers().toString());
+    public ResponseDto<Role> findAll(FilterRoleDto filter) {
+        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
+        Specification<Role> spec = RoleSpec.filterByCriteria(filter);
+
+        final Page<Role> roles = roleRepo.findAll(spec, pageable);
+        final long totalData = roles.getTotalElements();
+
+        // System.out.println("Service: "+roles);
         final ResponseDto<Role> respDto = new ResponseDto<>();
-        mapSvc.mapResponseSuccess(respDto, roles, "",1, roles.size());
+        mapSvc.mapResponseSuccess(respDto, roles.getContent(), "",roles.getTotalPages(), ((int) totalData));
         return respDto;
     }
 
@@ -73,7 +76,7 @@ public class RoleService implements RoleServiceInterface {
         );
 
         final ResponseDto<Role> respDto = new ResponseDto<>();
-        mapSvc.mapResponseSuccess(respDto, (Role) null, "Success delete");
+        mapSvc.mapResponseSuccess(respDto, role, "Success delete");
         return respDto;
     }
 }
