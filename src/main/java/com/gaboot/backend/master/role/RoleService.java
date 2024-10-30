@@ -27,11 +27,9 @@ public class RoleService implements RoleServiceInterface {
         Specification<Role> spec = RoleSpec.filterByCriteria(filter);
 
         final Page<Role> roles = roleRepo.findAll(spec, pageable);
-        final long totalData = roles.getTotalElements();
-
         // System.out.println("Service: "+roles);
         final ResponseDto<Role> respDto = new ResponseDto<>();
-        mapSvc.mapResponseSuccess(respDto, roles.getContent(), "",roles.getTotalPages(), ((int) totalData));
+        mapSvc.mapResponseSuccess(respDto, roles.getContent(), "",roles.getTotalPages(), ((int) roles.getTotalElements()));
         return respDto;
     }
 

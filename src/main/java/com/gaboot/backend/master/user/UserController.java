@@ -2,6 +2,7 @@ package com.gaboot.backend.master.user;
 
 import com.gaboot.backend.common.dto.ResponseDto;
 import com.gaboot.backend.master.user.dto.CreateUserDto;
+import com.gaboot.backend.master.user.dto.FilterUserDto;
 import com.gaboot.backend.master.user.dto.UpdateUserDto;
 import com.gaboot.backend.master.user.entity.User;
 import jakarta.validation.Valid;
@@ -24,8 +25,8 @@ public class UserController {
     private UserServiceInterface userSvc;
 
     @GetMapping()
-    public ResponseEntity<ResponseDto<User>> findAll(){
-        return ResponseEntity.ok(userSvc.findAll());
+    public ResponseEntity<ResponseDto<User>> findAll(@ModelAttribute FilterUserDto filter){
+        return ResponseEntity.ok(userSvc.findAll(filter));
     }
 
     @GetMapping("/{id}")

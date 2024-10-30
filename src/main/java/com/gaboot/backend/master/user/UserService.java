@@ -6,12 +6,14 @@ import com.gaboot.backend.common.service.ImageService;
 import com.gaboot.backend.common.service.MappingService;
 import com.gaboot.backend.master.role.RoleRepo;
 import com.gaboot.backend.master.role.entity.Role;
-import com.gaboot.backend.master.user.dto.CreateUserDto;
-import com.gaboot.backend.master.user.dto.UpdateUserDto;
-import com.gaboot.backend.master.user.dto.UserMapper;
+import com.gaboot.backend.master.user.dto.*;
 import com.gaboot.backend.master.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,10 +33,13 @@ public class UserService implements UserServiceInterface {
     private ImageService imgService;
 
     @Override
-    public ResponseDto<User> findAll() {
-        final List<User> users = userRepo.findAll();
+    public ResponseDto<User> findAll(FilterUserDto filter) {
+        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
+        Specification<User> spec = UserSpec.filter(filter);
+
+        final Page<User> users = userRepo.findAllWithRoles(spec, pageable);
         final ResponseDto<User> respDto = new ResponseDto<>();
-        mapServ.mapResponseSuccess(respDto, users, "",1, users.size());
+        mapServ.mapResponseSuccess(respDto, users.getContent(), "",users.getTotalPages(), ((int) users.getTotalElements()));
         return respDto;
     }
 
