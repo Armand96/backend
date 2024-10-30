@@ -1,7 +1,8 @@
 package com.gaboot.backend.master.role.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gaboot.backend.common.entity.BaseEntity;
+import com.gaboot.backend.config.LazyLoadFilterSerializer;
 import com.gaboot.backend.master.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +27,6 @@ public class Role extends BaseEntity {
     private String roleName;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY) // Establishes the reverse relationship
-    @JsonIgnoreProperties("role")
+    @JsonSerialize(using = LazyLoadFilterSerializer.class)
     private List<User> users; // Collection of users with this role
 }

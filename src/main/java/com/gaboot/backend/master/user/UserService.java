@@ -40,10 +40,9 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public ResponseDto<User> findOne(UUID id) {
-        final User user = userRepo.findById(id).orElseThrow(
+        final User user = userRepo.findByIdWithRole(id).orElseThrow(
                 () -> new ResourceNotFoundException("Resource not found with given id: " + id)
         );
-        user.getRole().getRoleName();
         final ResponseDto<User> respDto = new ResponseDto<>();
         mapServ.mapResponseSuccess(respDto, user, "");
         return respDto;

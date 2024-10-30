@@ -1,8 +1,9 @@
 package com.gaboot.backend.master.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gaboot.backend.common.entity.BaseEntity;
+import com.gaboot.backend.config.LazyLoadFilterSerializer;
 import com.gaboot.backend.master.role.entity.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,6 +51,6 @@ public class User extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY) // Establishes the relationship
     @JoinColumn(name = "role_id", referencedColumnName = "id") // Foreign key column
-    @JsonIgnoreProperties("users")
+    @JsonSerialize(using = LazyLoadFilterSerializer.class)
     private Role role;
 }

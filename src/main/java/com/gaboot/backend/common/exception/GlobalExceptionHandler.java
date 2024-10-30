@@ -14,6 +14,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ResponseDto<Object>> handleBadRequestException(BadRequestException ex) {
         ResponseDto<Object> resp = new ResponseDto<>();
+        System.out.println(ex.getMessage());
         resp.setMessage(ex.getMessage());
         resp.setSuccess(false);
         return new ResponseEntity<>(resp, HttpStatus.BAD_REQUEST);
@@ -23,6 +24,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ResponseDto<Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ResponseDto<Object> resp = new ResponseDto<>();
+        System.out.println(ex.getMessage());
         resp.setMessage(ex.getMessage());
         resp.setSuccess(false);
         return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
@@ -32,7 +34,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ResponseDto<Object>> handleGeneralException(Exception ex) {
-        ex.printStackTrace();
+        System.out.println(ex.getMessage());
         ResponseDto<Object> resp = new ResponseDto<>();
         resp.setMessage(ex.getMessage());
         resp.setSuccess(false);

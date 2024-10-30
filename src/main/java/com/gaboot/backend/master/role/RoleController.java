@@ -4,7 +4,7 @@ import com.gaboot.backend.common.dto.ResponseDto;
 import com.gaboot.backend.master.role.dto.CreateRoleDto;
 import com.gaboot.backend.master.role.dto.UpdateRoleDto;
 import com.gaboot.backend.master.role.entity.Role;
-import com.gaboot.backend.master.role.entity.RoleDto;
+
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +23,7 @@ public class RoleController {
 
     @GetMapping()
     public ResponseEntity<ResponseDto<Role>> findAll() {
-        ResponseDto<Role> a = roleSvc.findAll();
-        System.out.println("Controller: " + a);
-        return ResponseEntity.ok(a);
+        return ResponseEntity.ok(roleSvc.findAll());
     }
 
     @GetMapping("/{id}")

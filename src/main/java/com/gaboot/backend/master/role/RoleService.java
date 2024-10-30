@@ -9,6 +9,7 @@ import com.gaboot.backend.master.role.dto.UpdateRoleDto;
 import com.gaboot.backend.master.role.entity.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,9 +22,11 @@ public class RoleService implements RoleServiceInterface {
     private MappingService<Role> mapSvc;
 
     @Override
+    @Transactional
     public ResponseDto<Role> findAll() {
         final List<Role> roles = roleRepo.findAll();
-        System.out.println(roles.toString());
+        System.out.println("Service: "+roles.toString());
+        // System.out.println("Service: "+roles.getFirst().getUsers().toString());
         final ResponseDto<Role> respDto = new ResponseDto<>();
         mapSvc.mapResponseSuccess(respDto, roles, "",1, roles.size());
         return respDto;
