@@ -37,7 +37,7 @@ public class UserService implements UserServiceInterface {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
         Specification<User> spec = UserSpec.filter(filter);
 
-        final Page<User> users = userRepo.findAllWithRoles(spec, pageable);
+        final Page<User> users = userRepo.findAll(spec, pageable);
         final ResponseDto<User> respDto = new ResponseDto<>();
         mapServ.mapResponseSuccess(respDto, users.getContent(), "",users.getTotalPages(), ((int) users.getTotalElements()));
         return respDto;

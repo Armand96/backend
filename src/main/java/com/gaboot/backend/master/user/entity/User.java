@@ -7,7 +7,11 @@ import com.gaboot.backend.config.LazyLoadFilterSerializer;
 import com.gaboot.backend.master.role.entity.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +19,7 @@ import java.util.UUID;
 @Getter @Setter
 @ToString(exclude = "role")
 @AllArgsConstructor @NoArgsConstructor
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -49,8 +53,38 @@ public class User extends BaseEntity {
     @Column(length = 255)
     private String thumbnailPath;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Establishes the relationship
+    @ManyToOne(fetch = FetchType.EAGER) // Establishes the relationship
     @JoinColumn(name = "role_id", referencedColumnName = "id") // Foreign key column
     @JsonSerialize(using = LazyLoadFilterSerializer.class)
     private Role role;
+
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() {
+        return true;
+    }
 }

@@ -17,6 +17,8 @@ import java.util.UUID;
 @Repository
 public interface UserRepo extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
 
+    Optional<User> findByUsername(String username);
+
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.role r") // Adjust 'role' to match your field name
     Page<User> findAllWithRoles(Specification<User> spec, Pageable pageable);
 
