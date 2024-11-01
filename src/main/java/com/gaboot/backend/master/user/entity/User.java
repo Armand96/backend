@@ -53,7 +53,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(length = 255)
     private String thumbnailPath;
 
-    @ManyToOne(fetch = FetchType.EAGER) // Establishes the relationship
+    @ManyToOne(fetch = FetchType.LAZY) // Establishes the relationship
     @JoinColumn(name = "role_id", referencedColumnName = "id") // Foreign key column
     @JsonSerialize(using = LazyLoadFilterSerializer.class)
     private Role role;
