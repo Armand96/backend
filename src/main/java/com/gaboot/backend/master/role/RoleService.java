@@ -38,7 +38,8 @@ public class RoleService implements RoleServiceInterface {
         final Role role = roleRepo.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Resource not found with given id: " + id)
         );
-        System.out.println("ROLES: "+role.toString());
+        System.out.println("ROLE: "+role);
+        System.out.println("USERS: "+role.getUsers());
         final ResponseDto<Role> respDto = new ResponseDto<>();
         mapSvc.mapResponseSuccess(respDto, role, "");
         return respDto;
