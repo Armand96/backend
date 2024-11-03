@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ public class RoleService implements RoleServiceInterface {
     }
 
     @Override
+    @Transactional
     public ResponseDto<Role> findOne(UUID id) {
         final Role role = roleRepo.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Resource not found with given id: " + id)

@@ -1,5 +1,7 @@
 package com.gaboot.backend.master.user;
 
+import com.gaboot.backend.common.constant.Storage;
+import com.gaboot.backend.common.dto.ImageDto;
 import com.gaboot.backend.common.dto.ResponseDto;
 import com.gaboot.backend.master.user.dto.CreateUserDto;
 import com.gaboot.backend.master.user.dto.FilterUserDto;
@@ -7,8 +9,9 @@ import com.gaboot.backend.master.user.dto.UpdateUserDto;
 import com.gaboot.backend.master.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import org.apache.coyote.BadRequestException;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -76,6 +79,14 @@ public class UserController {
             @RequestPart("file") MultipartFile file) {
         System.out.println(userDto);
         return ResponseEntity.ok("File uploaded: " + file.getOriginalFilename());
+    }
+
+    @GetMapping("/image/{filename:.+}")
+    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
+        ImageDto resource = userSvc.getImage(filename);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, resource.getContentType())  // Set content type
+                .body(resource.getResource());
     }
 }
 

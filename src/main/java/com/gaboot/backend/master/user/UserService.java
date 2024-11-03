@@ -1,5 +1,7 @@
 package com.gaboot.backend.master.user;
 
+import com.gaboot.backend.common.constant.Storage;
+import com.gaboot.backend.common.dto.ImageDto;
 import com.gaboot.backend.common.dto.ResponseDto;
 import com.gaboot.backend.common.exception.ResourceNotFoundException;
 import com.gaboot.backend.common.service.ImageService;
@@ -8,6 +10,7 @@ import com.gaboot.backend.master.role.RoleRepo;
 import com.gaboot.backend.master.role.entity.Role;
 import com.gaboot.backend.master.user.dto.*;
 import com.gaboot.backend.master.user.entity.User;
+// import jakarta.annotation.Resource;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,10 +19,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
 
+// import java.nio.file.Path;
+// import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.List;
+// import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,6 +40,7 @@ public class UserService implements UserServiceInterface {
     private ImageService imgService;
 
     @Override
+    @Transactional
     public ResponseDto<User> findAll(FilterUserDto filter) {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
         Specification<User> spec = UserSpec.filter(filter);
@@ -61,8 +69,8 @@ public class UserService implements UserServiceInterface {
 
         // upload image
         final String filename = userDto.getFirstname().toLowerCase().trim() + "_" + userDto.getLastname().toLowerCase().trim() + "_" + Instant.now().toEpochMilli();
-        final String imagePath = imgService.uploadImage(file, filename);
-        final String imagePathThumb = imgService.uploadImageThumb(file,filename);
+        final String imagePath = imgService.uploadImage(file, filename, Storage.USER_DIR);
+        final String imagePathThumb = imgService.uploadImageThumb(file,filename, Storage.USER_DIR_THUMB);
 
         User user = UserMapper.mapToUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -99,8 +107,8 @@ public class UserService implements UserServiceInterface {
         // System.out.println(user.toString());
         // upload image
         final String filename = userDto.getFirstname().toLowerCase().trim() + "_" + userDto.getLastname().toLowerCase().trim() + "_" + Instant.now().toEpochMilli();
-        final String imagePath = imgService.uploadImage(file, filename);
-        final String imagePathThumb = imgService.uploadImageThumb(file, filename);
+        final String imagePath = imgService.uploadImage(file, filename, Storage.USER_DIR);
+        final String imagePathThumb = imgService.uploadImageThumb(file, filename, Storage.USER_DIR_THUMB);
 
         if(!imagePath.isEmpty()) {
             imgService.deleteFile(user.getImagePath());
@@ -128,6 +136,11 @@ public class UserService implements UserServiceInterface {
         final ResponseDto<User> respDto = new ResponseDto<>();
         mapServ.mapResponseSuccess(respDto, (User) null, "Success delete");
         return respDto;
+    }
+
+    @Override
+    public ImageDto getImage(String filename) {
+        return imgService.getImage(false, filename, Storage.USER_DIR);
     }
 
     @Override

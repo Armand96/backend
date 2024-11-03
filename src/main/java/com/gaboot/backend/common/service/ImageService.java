@@ -1,6 +1,9 @@
 package com.gaboot.backend.common.service;
 
-import com.gaboot.backend.common.constant.Storage;
+// import com.gaboot.backend.common.constant.Storage;
+import com.gaboot.backend.common.dto.ImageDto;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,37 +21,57 @@ import java.io.InputStream;
 @Service
 public class ImageService {
 
-    public String uploadImage(MultipartFile file, String filename){
+    public ImageDto getImage(boolean isThumb, String filename, String DIR) {
+        // final String DIR = isThumb ? Storage.USER_DIR_THUMB : Storage.USER_DIR;
+        try {
+            Path imagePath = Paths.get(DIR + filename);
+            Resource resource;
+            resource = new UrlResource(imagePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                String contentType = Files.probeContentType(imagePath);
+                if (contentType == null) {
+                    contentType = "application/octet-stream"; // Default if content type can't be determined
+                }
+                return new ImageDto(resource, contentType);
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public String uploadImage(MultipartFile file, String filename, String DIR){
         // Create the upload directory if it doesn't exist
-        File uploadDir = new File(Storage.USER_DIR);
+        File uploadDir = new File(DIR);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
 
         // Define the path to save the file
-//        Path filePath = Paths.get(Storage.USER_DIR + file.getOriginalFilename());
-        Path filePath = Paths.get(Storage.USER_DIR + filename + "." + getFileExtension(file));
+//        Path filePath = Paths.get(DIR + file.getOriginalFilename());
+        Path filePath = Paths.get(DIR + filename + "." + getFileExtension(file));
         String imagePath = "";
 
         try {
             if(filePath.toFile().exists()) deleteFile(filePath.toString());
             Files.copy(file.getInputStream(), filePath);
-            imagePath = Storage.USER_DIR + filePath.getFileName();
+            imagePath = DIR + filePath.getFileName();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return imagePath;
     }
 
-    public String uploadImageThumb(MultipartFile file, String filename) {
+    public String uploadImageThumb(MultipartFile file, String filename, String DIR) {
         // Create the upload directory if it doesn't exist
-        File uploadDir = new File(Storage.USER_DIR_THUMB);
+        File uploadDir = new File(DIR);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
 
         // Define the path to save the file
-        Path filePath = Paths.get(Storage.USER_DIR_THUMB + filename + "." + getFileExtension(file));
+        Path filePath = Paths.get(DIR + filename + "." + getFileExtension(file));
         String imagePath = "";
 
         try {
@@ -56,7 +79,7 @@ public class ImageService {
             final String fileExtension = getFileExtension(file);
             BufferedImage resizedImage = resizeImage(file.getInputStream()); // Set dimensions
             saveImage(resizedImage, fileExtension, filePath.toString());
-            imagePath = Storage.USER_DIR_THUMB + filePath.getFileName();
+            imagePath = DIR + filePath.getFileName();
         } catch (IOException e) {
             e.printStackTrace();
         }
