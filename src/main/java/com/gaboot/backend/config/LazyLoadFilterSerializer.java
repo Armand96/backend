@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -12,39 +13,47 @@ import java.util.Set;
 
 public class LazyLoadFilterSerializer<T> extends JsonSerializer<T> {
 
-    private static final Set<Object> serializedObjects = new HashSet<>();
+    private static final ThreadLocal<Set<Object>> serializedObjects = ThreadLocal.withInitial(HashSet::new);
 
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        System.out.println("CLASS: "+Hibernate.getClassLazy(value));
-        System.out.println("CLASS: "+(value instanceof Collection<?>));
-        if (serializedObjects.contains(value)) {
+        Set<Object> currentSerializedObjects = serializedObjects.get();
+
+        if (currentSerializedObjects.contains(value)) {
             gen.writeNull(); // Prevent recursive serialization
             return;
         }
 
-        serializedObjects.add(value); // Mark the object as processed
+        currentSerializedObjects.add(value); // Mark the object as processed
 
-        if (value instanceof Collection) {
-            Collection<?> collection = (Collection<?>) value;
-            if (Hibernate.isInitialized(collection)) {
-                gen.writeStartArray();
-                for (Object item : collection) {
-                    serialize((T) item, gen, serializers); // Recursively serialize items
+        try {
+            if (value instanceof HibernateProxy)
+                value = (T) ((HibernateProxy) value).getHibernateLazyInitializer().getImplementation();
+
+            if (value instanceof Collection) {
+                Collection<?> collection = (Collection<?>) value;
+                if (Hibernate.isInitialized(collection)) {
+                    gen.writeStartArray();
+                    for (Object item : collection) {
+                        gen.writeObject(item);
+                    }
+                    gen.writeEndArray();
+                } else {
+                    gen.writeStartArray();
+                    gen.writeEndArray();
                 }
-                gen.writeEndArray();
             } else {
-                gen.writeStartArray(); // Write an empty array if the collection is uninitialized
-                gen.writeEndArray();
+                if (Hibernate.isInitialized(value)) {
+                    gen.writeObject(value);
+                } else {
+                    gen.writeNull();
+                }
             }
-        } else {
-            if (Hibernate.isInitialized(value)) {
-                gen.writeObject(value); // Serialize if initialized
-            } else {
-                gen.writeNull(); // Avoid initializing and return null
+        } finally {
+            currentSerializedObjects.remove(value);
+            if (currentSerializedObjects.isEmpty()) {
+                serializedObjects.remove();
             }
         }
-
-        serializedObjects.remove(value); // Cleanup after serialization
     }
 }

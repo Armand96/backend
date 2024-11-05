@@ -13,6 +13,7 @@ import com.gaboot.backend.master.user.entity.User;
 // import jakarta.annotation.Resource;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+// import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class UserService implements UserServiceInterface {
 
     private UserRepo userRepo;
@@ -40,7 +42,6 @@ public class UserService implements UserServiceInterface {
     private ImageService imgService;
 
     @Override
-    @Transactional
     public ResponseDto<User> findAll(FilterUserDto filter) {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
         Specification<User> spec = UserSpec.filter(filter);
@@ -56,6 +57,7 @@ public class UserService implements UserServiceInterface {
         final User user = userRepo.findByIdWithRole(id).orElseThrow(
                 () -> new ResourceNotFoundException("Resource not found with given id: " + id)
         );
+        // Hibernate.initialize(user.getRole());
         final ResponseDto<User> respDto = new ResponseDto<>();
         mapServ.mapResponseSuccess(respDto, user, "");
         return respDto;
