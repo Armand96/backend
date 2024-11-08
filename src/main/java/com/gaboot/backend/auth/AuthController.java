@@ -3,16 +3,18 @@ package com.gaboot.backend.auth;
 import com.gaboot.backend.auth.dto.LoginDto;
 import com.gaboot.backend.auth.dto.LoginResponseDto;
 import com.gaboot.backend.auth.dto.RefreshTokenReq;
+import com.gaboot.backend.common.dto.ResponseDto;
 import com.gaboot.backend.master.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 // import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(path = "/auth")
@@ -40,7 +42,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@Valid @RequestBody RefreshTokenReq req) {
+    public ResponseEntity<LoginResponseDto> refresh(@Valid @RequestBody RefreshTokenReq req) {
         String refreshToken = req.getRefreshToken();
         if (jwtService.isTokenValid(refreshToken)) {
             String username = jwtService.extractUsername(refreshToken);
@@ -49,6 +51,21 @@ public class AuthController {
             String newAccessToken = jwtService.generateToken(currentUser);
             return ResponseEntity.ok(new LoginResponseDto(newAccessToken, refreshToken, jwtService.getExpirationTime()));
         }
-        return ResponseEntity.status(401).body("Invalid refresh token");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized to access this");
+        // return ResponseEntity.status(401).body("Invalid refresh token");
+    }
+
+    @GetMapping("/currentUser")
+    public ResponseEntity<ResponseDto<User>> currentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        User user = (User) authentication.getPrincipal();
+
+        ResponseDto<User> resp = new ResponseDto<>();
+        resp.setSuccess(true);
+        resp.setMessage("OK");
+        resp.setDatum(user);
+
+        return ResponseEntity.ok(resp);
     }
 }
