@@ -1,7 +1,14 @@
+logging:
+  level:
+    root: "warn"
+    org.springframework.web: "debug"
+    org.hibernate: "error"
+  file:
+    name: logs/app.log
 security:
   jwt:
     secret-key: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b
-    expiration-time: 30000
+    expiration-time: 3600000
     expiration-time-refresh: 604800000 #7 days
     skip-jwt: false
 spring:
@@ -23,14 +30,14 @@ spring:
     url: jdbc:mysql://localhost:3306/gabz
     username: root
     password: wingscorp
-    driver-class-name: com.mysql.cj.jdbc.Driver
+#    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+#    properties:
+#      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
 file:
   upload-dir: storage/
