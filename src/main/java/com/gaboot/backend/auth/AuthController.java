@@ -7,6 +7,8 @@ import com.gaboot.backend.common.dto.ResponseDto;
 import com.gaboot.backend.master.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 // import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 @AllArgsConstructor
 @Validated
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final JwtService jwtService;
     private final AuthService authenticationService;
@@ -57,6 +61,7 @@ public class AuthController {
 
     @GetMapping("/currentUser")
     public ResponseEntity<ResponseDto<User>> currentUser() {
+        logger.error("TEST LOGGER");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         User user = (User) authentication.getPrincipal();
